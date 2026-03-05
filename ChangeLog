@@ -1,0 +1,15 @@
+2026-03-05  Giuliano Pintori <pintori@link.it>
+
+	* [ProjectSetup]
+	Creazione repository
+	Creato repository iniziale per il progetto govpay-ec-client.
+	Client SDK per GovPay API Notifica e Verifica v2.
+	Configurazione base Spring Boot 3.5.9 con Java 21.
+	Generazione automatica dei modelli e delle API tramite OpenAPI Generator (webclient).
+	Adottato govpay-bom 1.1.2 come parent POM.
+
+	* [Build]
+	Importata pipeline di validazione e rilascio CI/CD dal progetto govpay-common.
+	Configurazione JaCoCo per code coverage e OWASP Dependency Check per security scanning.
+	Integrazione SonarCloud per analisi qualita' del codice.
+	Analisi automatica compatibilita' licenze dipendenze.
