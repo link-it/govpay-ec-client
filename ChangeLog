@@ -1,3 +1,12 @@
+2026-03-06  Giuliano Pintori <pintori@link.it>
+
+	* [API]
+	Aggiunta operazione POST /rendicontazioni per la notifica delle rendicontazioni pagoPA.
+	Definito schema NuovaRendicontazione con campi: idDominio, iuv, iur, indice, importo,
+	esito, data, idFlusso, dataFlusso, trn, dataRegolamento, dataOraPubblicazione,
+	dataOraAggiornamento, idPsp, bicRiversamento, revisione.
+	Generazione automatica del modello NuovaRendicontazione e del client NotificaRendicontazioniApi.
+
 2026-03-05  Giuliano Pintori <pintori@link.it>
 
 	* [ProjectSetup]
