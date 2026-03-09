@@ -30,6 +30,9 @@ LICENSE_COMPATIBILITY = {
     'The MIT License': {'gplv3_compatible': True, 'enterprise_safe': True, 'category': 'MIT'},
     'MIT': {'gplv3_compatible': True, 'enterprise_safe': True, 'category': 'MIT'},
 
+    # MIT-0
+    'MIT-0': {'gplv3_compatible': True, 'enterprise_safe': True, 'category': 'MIT-0'},
+
     # BSD variants
     'BSD License': {'gplv3_compatible': True, 'enterprise_safe': True, 'category': 'BSD'},
     'BSD 3-Clause License': {'gplv3_compatible': True, 'enterprise_safe': True, 'category': 'BSD-3-Clause'},
