@@ -546,10 +546,12 @@ components:
           type: number
           description: Codice esito rendicontazione
           enum:
-            - 0
-            - 3
-            - 9
-          example: 0
+            - ESEGUITO
+            - REVOCATO
+            - ESEGUITO_STANDIN
+            - ESEGUITO_STANDIN_SENZA_RPT
+            - ESEGUITO_SENZA_RPT
+          example: ESEGUITO
         data:
           type: string
           format: date-time
@@ -905,6 +907,8 @@ components:
             Codice di esito dell'operazione rendicontata
              * 0 = Pagamento eseguito
              * 3 = Pagamento revocato
+             * 4 = Pagamento eseguito in modalita' stand-in
+	     * 8 = Pagamento eseguito stand-in in assenza di RPT
              * 9 = Pagamento eseguito in assenza di RPT
           example: 0
         data:
