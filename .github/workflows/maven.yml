@@ -1,0 +1,327 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+    tags:
+      - "[0-9]*" # tag che iniziano con un numero (validiamo X.Y.Z nel job release)
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: write
+  id-token: write
+  actions: write
+
+jobs:
+
+  # ── Build, Test, Quality ─────────────────────────────────────────────
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set timezone to Europe/Rome
+      run: sudo timedatectl set-timezone Europe/Rome
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Check NVD_API_KEY
+      run: |
+        if [ -z "$NVD_API_KEY" ]; then
+          echo "NVD_API_KEY is NOT set!"
+        else
+          echo "NVD_API_KEY is set."
+        fi
+      env:
+        NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+
+    - name: Check OSS_INDEX_USER
+      run: |
+        if [ -z "$OSS_INDEX_USER" ]; then
+          echo "OSS_INDEX_USER is NOT set!"
+        else
+          echo "OSS_INDEX_USER is set."
+        fi
+      env:
+        OSS_INDEX_USER: ${{ vars.OSS_INDEX_USER }}
+
+    - name: Check OSS_INDEX_PASSWORD
+      run: |
+        if [ -z "$OSS_INDEX_PASSWORD" ]; then
+          echo "OSS_INDEX_PASSWORD is NOT set!"
+        else
+          echo "OSS_INDEX_PASSWORD is set."
+        fi
+      env:
+        OSS_INDEX_PASSWORD: ${{ secrets.OSS_INDEX_PASSWORD }}
+
+    - name: Cache OWASP Dependency-Check DB
+      uses: actions/cache@v4
+      with:
+        path: .dependency-check/data
+        key: ${{ runner.os }}-owasp-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-owasp-
+
+    - name: Build with Maven
+      run: mvn clean install -Dspring.profiles.active=test -Duser.timezone=Europe/Rome -DnvdApiKey=$NVD_API_KEY -DossIndexUsername=$OSS_INDEX_USER -DossIndexPassword=$OSS_INDEX_PASSWORD -DdataDirectory=.dependency-check/data -Dowasp.format=ALL -Dowasp.output.dir=./dependency-check-report
+      env:
+        NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+        OSS_INDEX_USER: ${{ vars.OSS_INDEX_USER }}
+        OSS_INDEX_PASSWORD: ${{ secrets.OSS_INDEX_PASSWORD }}
+
+    - name: Show JaCoCo report location and Zip JaCoCo HTML report
+      run: |
+        ls -lh target/site/jacoco/
+        file target/site/jacoco/jacoco.xml || echo "Report non trovato"
+        cd target/site
+        zip -r ../jacoco-html-report.zip jacoco
+        cd ../../
+        ls -lh target/
+
+    - name: Copy dependencies
+      run: |
+        mkdir -p target/dependency
+        mvn dependency:copy-dependencies -DoutputDirectory=target/dependency
+
+    - name: SonarCloud Scan
+      uses: SonarSource/sonarcloud-github-action@v2
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      with:
+        args: >
+          -Dsonar.projectKey=link-it_govpay-ec-client
+          -Dsonar.organization=link-it
+          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+          -Dsonar.sources=src/main/java
+          -Dsonar.tests=src/test/java
+          -Dsonar.java.binaries=target/classes
+          -Dsonar.coverage.exclusions=**/test/**,**/*Test*.java
+          -Dsonar.java.source=21
+          -Dsonar.java.libraries=target/dependency
+
+    - name: License Analysis
+      run: |
+        set -euo pipefail
+        echo "Downloading license information..."
+        mvn org.codehaus.mojo:license-maven-plugin:2.4.0:aggregate-download-licenses -DexcludeScopes=test,provided,system -DincludeTransitiveDependencies=true
+        echo "Analyzing licenses..."
+        python3 .github/workflows/scripts/analyze_licenses.py --exceptions .github/workflows/scripts/license-exceptions.json
+
+    - name: Archive licenses analysis results
+      uses: actions/upload-artifact@v4
+      with:
+        name: third-party-licenses
+        path: third-party-licenses
+
+    - name: Upload artifact to GitHub
+      uses: actions/upload-artifact@v4
+      with:
+        name: govpay-ec-client
+        path: |
+          target/govpay-ec-client-*.jar
+          target/site/jacoco/jacoco.xml
+          target/jacoco-html-report.zip
+          target/dependency-check-report.html
+          target/dependency-check-report.xml
+
+  # ── Deploy SNAPSHOT su Maven Central (solo push su main) ─────────────
+  snapshot-on-main:
+    needs: build
+    if: startsWith(github.ref, 'refs/heads/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java + Maven settings
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+          # Deve combaciare con <id> del distributionManagement snapshotRepository (es. central-snapshots)
+          server-id: central-snapshots
+          server-username: CENTRAL_USERNAME
+          server-password: CENTRAL_TOKEN
+
+      - name: Verify required secrets
+        env:
+          CENTRAL_USERNAME: ${{ vars.CENTRAL_USERNAME }}
+          CENTRAL_TOKEN: ${{ secrets.CENTRAL_TOKEN }}
+        run: |
+          MISSING=()
+          [ -z "$CENTRAL_USERNAME" ] && MISSING+=("CENTRAL_USERNAME")
+          [ -z "$CENTRAL_TOKEN" ] && MISSING+=("CENTRAL_TOKEN")
+          if [ ${#MISSING[@]} -gt 0 ]; then
+            echo "::error::Missing secrets: ${MISSING[*]}"
+            exit 1
+          fi
+          echo "All required secrets are set."
+
+      - name: Read project version
+        id: version
+        run: |
+          VERSION="$(mvn -q -DforceStdout help:evaluate -Dexpression=project.version)"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Project version: $VERSION"
+
+      - name: Deploy SNAPSHOT to Sonatype snapshots
+        if: endsWith(steps.version.outputs.version, '-SNAPSHOT')
+        env:
+          CENTRAL_USERNAME: ${{ vars.CENTRAL_USERNAME }}
+          CENTRAL_TOKEN: ${{ secrets.CENTRAL_TOKEN }}
+        run: mvn -B -DskipTests deploy -Dowasp.phase=none
+
+      - name: Skip (not a SNAPSHOT)
+        if: ${{ !endsWith(steps.version.outputs.version, '-SNAPSHOT') }}
+        run: echo "Version is stable -> no publish on main."
+
+  # ── GitHub Release (solo tag) ────────────────────────────────────────
+  github-release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download artifact from build job
+      uses: actions/download-artifact@v4
+      with:
+        name: govpay-ec-client
+        path: target/
+
+    - name: Download third-party-licenses artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: third-party-licenses
+        path: third-party-licenses/
+
+    - name: Rename the artifact file to include the tag
+      run: |
+        SRC=$(ls target/govpay-ec-client-*.jar)
+        DEST="target/govpay-ec-client-${{ github.ref_name }}.jar"
+        if [ "$SRC" != "$DEST" ]; then
+          cp "$SRC" "$DEST"
+        fi
+        cp target/site/jacoco/jacoco.xml target/jacoco.xml
+
+    - name: Zip third-party licenses
+      run: |
+        if [ -d "third-party-licenses" ]; then
+          zip -r target/third-party-licenses.zip third-party-licenses
+        else
+          echo "third-party-licenses directory not found, skipping..."
+        fi
+
+    - name: List files in target directory
+      run: ls -l target/
+
+    - name: Create GitHub release
+      id: create_release
+      uses: softprops/action-gh-release@v2.2.1
+      with:
+        files: |
+          target/govpay-ec-client-${{ github.ref_name }}.jar
+          target/jacoco.xml
+          target/jacoco-html-report.zip
+          target/dependency-check-report.html
+          target/dependency-check-report.xml
+          target/third-party-licenses.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+  # ── Deploy RELEASE su Maven Central (solo tag) ──────────────────────
+  release-on-tag:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate tag format (must be X.Y.Z)
+        run: |
+          TAG="${{ github.ref_name }}"
+          echo "Tag: $TAG"
+          if [[ ! "$TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Not a release tag (expected X.Y.Z). Aborting."
+            exit 1
+          fi
+
+      - name: Set up Java + Maven settings + GPG
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+          # Deve combaciare con publishingServerId del central-publishing-maven-plugin (es. central)
+          server-id: central
+          server-username: CENTRAL_USERNAME
+          server-password: CENTRAL_TOKEN
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
+
+      - name: Verify required secrets
+        env:
+          CENTRAL_USERNAME: ${{ vars.CENTRAL_USERNAME }}
+          CENTRAL_TOKEN: ${{ secrets.CENTRAL_TOKEN }}
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          MISSING=()
+          [ -z "$CENTRAL_USERNAME" ] && MISSING+=("CENTRAL_USERNAME")
+          [ -z "$CENTRAL_TOKEN" ] && MISSING+=("CENTRAL_TOKEN")
+          [ -z "$GPG_PRIVATE_KEY" ] && MISSING+=("GPG_PRIVATE_KEY")
+          [ -z "$GPG_PASSPHRASE" ] && MISSING+=("GPG_PASSPHRASE")
+          if [ ${#MISSING[@]} -gt 0 ]; then
+            echo "::error::Missing secrets: ${MISSING[*]}"
+            exit 1
+          fi
+          echo "All required secrets are set."
+
+      - name: Read project version
+        id: version
+        run: |
+          VERSION="$(mvn -q -DforceStdout help:evaluate -Dexpression=project.version)"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Project version: $VERSION"
+
+      - name: Fail if POM is SNAPSHOT on a tag
+        if: endsWith(steps.version.outputs.version, '-SNAPSHOT')
+        run: |
+          echo "Refusing to release a -SNAPSHOT version on tag."
+          exit 1
+
+      - name: Ensure tag matches POM version
+        run: |
+          TAG="${{ github.ref_name }}"
+          VERSION="${{ steps.version.outputs.version }}"
+          if [[ "$TAG" != "$VERSION" ]]; then
+            echo "Tag ($TAG) does not match POM version ($VERSION). Aborting release."
+            exit 1
+          fi
+          echo "OK: tag matches POM version."
+
+      - name: Deploy RELEASE to Maven Central (Central Portal)
+        env:
+          CENTRAL_USERNAME: ${{ vars.CENTRAL_USERNAME }}
+          CENTRAL_TOKEN: ${{ secrets.CENTRAL_TOKEN }}
+          MAVEN_GPG_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: mvn -B -DskipTests deploy -Prelease -Dowasp.phase=none
