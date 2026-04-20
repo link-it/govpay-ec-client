@@ -1,3 +1,17 @@
+2026-04-20  Giuliano Pintori <pintori@link.it>
+
+	* [Build]
+	Aggiunto job osv-scan alla pipeline CI/CD che utilizza il reusable workflow
+	google/osv-scanner-action@v2.3.5 per la verifica delle vulnerabilita' note
+	sulle dipendenze. Il job viene eseguito su push in main, sui tag e con
+	override tramite variabile FORCE_OSV_JOB. I job github-release e
+	release-on-tag dipendono ora anche da osv-scan.
+
+	* [Security]
+	Override versione Netty a 4.1.132.Final tramite import di netty-bom nel
+	dependencyManagement per risolvere GHSA-pwqr-wmgm-9rr8 (netty-codec-http)
+	e GHSA-w9fj-cfpg-grvv (netty-codec-http2).
+
 2026-03-06  Giuliano Pintori <pintori@link.it>
 
 	* [API]
