@@ -11,10 +11,11 @@
 	Override versione Netty a 4.1.132.Final tramite import di netty-bom nel
 	dependencyManagement per risolvere GHSA-pwqr-wmgm-9rr8 (netty-codec-http)
 	e GHSA-w9fj-cfpg-grvv (netty-codec-http2).
-	Abilitato l'analyzer OSS Index di OWASP Dependency-Check
-	(owasp.ossindex.analyzer.enabled=true) per evitare la dipendenza dal
-	database NVD locale in CI, che con autoUpdate disabilitato causava il
-	fallimento della build al primo run senza cache.
+	Abilitato l'autoUpdate del database NVD (owasp.autoUpdate=true) per
+	consentire l'esecuzione della scansione OWASP Dependency-Check in CI
+	quando la cache .dependency-check/data non e' ancora popolata.
+	Abilitato inoltre l'analyzer OSS Index (owasp.ossindex.analyzer.enabled=true)
+	per affiancare l'analisi cloud a quella basata sul DB NVD locale.
 
 2026-03-06  Giuliano Pintori <pintori@link.it>
 
