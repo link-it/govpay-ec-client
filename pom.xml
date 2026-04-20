@@ -41,6 +41,8 @@
     <properties>
         <sonar.sources>${project.basedir}/src/main/java,${project.basedir}/src/main/resources</sonar.sources>
         <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <!-- Abilita/disabilita l'analisi delle vulnerabilita' tramite OSS Index, se disabilitata viene usato il database CVE di NIST -->
+        <owasp.ossindex.analyzer.enabled>true</owasp.ossindex.analyzer.enabled>
     </properties>
 
     <dependencyManagement>
