@@ -1,3 +1,14 @@
+2026-04-21  Giuliano Pintori <pintori@link.it>
+
+	* [Build]
+	Allineata la gestione della cache del DB OWASP Dependency-Check al pattern
+	adottato in govpay-bom. Cache-key basata sulla data corrente (non piu' sullo
+	sha) con restore-keys di fallback. Quando la cache matcha la chiave esatta
+	del giorno, la build passa -DautoUpdate=false per saltare l'aggiornamento NVD.
+	Aggiunto workflow refresh-owasp-db.yml schedulato alle 03:00 UTC che aggiorna
+	il DB NVD cross-workflow, cosi' la pipeline principale trova sempre la cache
+	calda. Il workflow puo' essere lanciato anche manualmente (workflow_dispatch).
+
 2026-04-20  Giuliano Pintori <pintori@link.it>
 
 	* [Build]
