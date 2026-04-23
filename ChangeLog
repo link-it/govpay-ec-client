@@ -1,3 +1,15 @@
+2026-04-23  Giuliano Pintori <pintori@link.it>
+
+	* [Build]
+	Allineato il job github-release al pattern di govpay-fdr-batch per raccogliere
+	tutti i report di pipeline in un unico archivio release-reports-{tag}.zip con
+	sottocartelle owasp/, jacoco/, osv/, third-party-licenses/ e file di pipeline
+	info con link alla run. La GitHub Release pubblica ora solo il JAR versionato
+	e l'archivio dei report, invece dei singoli file.
+	Aggiornata la configurazione del job osv-scan: rimosso il prefisso
+	matrix-property 'be-' e impostato results-file-name=osv-report.sarif per
+	ottenere un artifact SARIF riutilizzabile nello ZIP di release.
+
 2026-04-21  Giuliano Pintori <pintori@link.it>
 
 	* [Build]
