@@ -1,3 +1,18 @@
+2026-05-04  Giuliano Pintori <pintori@link.it>
+
+	* [Release]
+	Avanzata la versione del progetto da 1.0.0-SNAPSHOT a 1.0.0.
+
+	* [Build]
+	Aggiornato il parent POM govpay-bom alla versione 1.1.3.
+	Aggiunto job sbom alla pipeline CI/CD per la generazione dell'SBOM
+	CycloneDX (formati json e xml) tramite cyclonedx-maven-plugin
+	(makeAggregateBom). Il job viene eseguito su push in main, sui tag e
+	con override tramite variabile FORCE_SBOM_JOB; puo' essere disabilitato
+	con DISABLE_SBOM_JOB. L'SBOM viene pubblicato come artifact sbom-report
+	e incluso nello ZIP release-reports-{tag}.zip nella sottocartella sbom/.
+	Il job github-release dipende ora anche da sbom.
+
 2026-04-23  Giuliano Pintori <pintori@link.it>
 
 	* [Build]
