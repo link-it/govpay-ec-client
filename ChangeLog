@@ -1,3 +1,57 @@
+2026-05-25  Giuliano Pintori <pintori@link.it>
+
+	* [Release]
+	Avanzata la versione del progetto da 1.0.0 a 2.0.0-SNAPSHOT.
+	Major bump dovuto al cambio di groupId Jackson (com.fasterxml.jackson
+	-> tools.jackson) che costituisce breaking change per i consumer del
+	client generato, e allineamento del major al parent govpay-bom 2.0.0.
+
+	* [Build]
+	Migrazione a Spring Boot 4.x / Spring Framework 7.x (issue #4).
+	Aggiornato il parent POM govpay-bom alla versione 2.0.0-SNAPSHOT che
+	gestisce Spring Boot 4.0.6, Spring Framework 7.0.7, Spring Security
+	7.0.5, Jackson 3.1.3 (groupId tools.jackson) e SpringDoc OpenAPI 3.0.3.
+
+	* [Build]
+	Aggiornata la configurazione del plugin openapi-generator-maven-plugin
+	per Spring Boot 4 e Jackson 3: aggiunte le configOptions useSpringBoot4
+	e useJackson3, impostato openApiNullable=false (jackson-databind-nullable
+	non piu' necessario), rimosso il sourceFolder duplicato.
+	Aggiunto build-helper-maven-plugin per registrare la cartella dei
+	sorgenti generati (target/generated-sources/java) come radice sorgenti.
+
+	* [Build]
+	Rimosse dalle dipendenze esplicite jackson-databind, jackson-datatype-jsr310
+	e jackson-databind-nullable: la gestione di Jackson 3 e' ora demandata al
+	BOM via groupId tools.jackson, con autodiscovery del modulo datetime.
+
+	* [Security]
+	Aggiornato l'override Netty a 4.2.14.Final tramite import di netty-bom
+	nel dependencyManagement per risolvere il gruppo di vulnerabilita' su
+	netty-transport (CVE-2026-42577, CVE-2026-42578, CVE-2026-42579,
+	CVE-2026-42580, CVE-2026-42581, CVE-2026-42582, CVE-2026-42583,
+	CVE-2026-42584, CVE-2026-42585, CVE-2026-42586, CVE-2026-42587,
+	CVE-2026-44248, CVE-2026-41417). Spring Boot 4.0.6 importa Netty
+	4.2.12.Final, la 4.2.14.Final include i fix. Sostituisce il precedente
+	override 4.1.132.Final (CVE GHSA-pwqr-wmgm-9rr8, GHSA-w9fj-cfpg-grvv)
+	non piu' applicabile alla nuova linea 4.2.x.
+
+	* [Test]
+	Aggiornati i test per Jackson 3: import tools.jackson.databind.ObjectMapper
+	al posto di com.fasterxml.jackson.databind.ObjectMapper. Rimossa la
+	registrazione esplicita di JavaTimeModule, ora auto-discovered via SPI.
+
+2026-05-12  Giuliano Pintori <pintori@link.it>
+
+	* [Bugfix]
+	Corretto il tipo del campo NuovaRendicontazione.esito nello schema OpenAPI
+	(govpay-api-schemas.yaml): da 'number' a 'string', coerentemente con i
+	valori enum (ESEGUITO, REVOCATO, ESEGUITO_STANDIN, ESEGUITO_STANDIN_SENZA_RPT,
+	ESEGUITO_SENZA_RPT). In 1.0.0 il mismatch causava la generazione di
+	NuovaRendicontazione$EsitoEnum con costanti 'new BigDecimal("null")' e
+	NumberFormatException in <clinit> al primo accesso, rendendo inutilizzabile
+	notificaRendicontazione lato client.
+
 2026-05-04  Giuliano Pintori <pintori@link.it>
 
 	* [Release]
