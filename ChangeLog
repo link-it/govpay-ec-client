@@ -1,6 +1,17 @@
 2026-05-26  Giuliano Pintori <pintori@link.it>
 
 	* [Build]
+	Allineato il gating della pipeline al pattern di govpay-common: i job
+	build, osv-scan e sbom sono ora prerequisiti obbligatori per gli step
+	successivi (snapshot-on-main, github-release, release-on-tag tutti su
+	needs: [ build, osv-scan, sbom ]). Rimosse le condizioni "if:" che
+	saltavano osv-scan e sbom sui push non-main / non-tag e su PR: i due
+	job vengono sempre eseguiti cosi' da costituire un vero gate. Rimosso
+	il continue-on-error su sbom e le variabili FORCE_OSV_JOB,
+	FORCE_SBOM_JOB, DISABLE_SBOM_JOB non piu' necessarie. Aggiunto
+	--allow-no-lockfiles a osv-scanner per uniformita' con govpay-common.
+
+	* [Build]
 	Allineata la gestione della cache OWASP Dependency-Check al pattern
 	adottato in govpay-common. Aggiunto step "Read OWASP plugin version
 	from pom.xml" che legge owasp.plugin.version (gestita dal BOM) via
