@@ -543,7 +543,7 @@ components:
           description: Importo rendicontato
           example: 10.01
         esito:
-          type: number
+          type: string
           description: Codice esito rendicontazione
           enum:
             - ESEGUITO
