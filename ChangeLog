@@ -1,3 +1,19 @@
+2026-05-26  Giuliano Pintori <pintori@link.it>
+
+	* [Build]
+	Allineata la gestione della cache OWASP Dependency-Check al pattern
+	adottato in govpay-common. Aggiunto step "Read OWASP plugin version
+	from pom.xml" che legge owasp.plugin.version (gestita dal BOM) via
+	mvn help:evaluate e inserisce la versione nella chiave di cache:
+	bump del plugin -> cache invalidata (lo schema del DB cambia tra le
+	release maggiori/minori). La chiave passa da
+	${{ runner.os }}-owasp-${date} a
+	${{ runner.os }}-owasp-v${version}-${date} con restore-keys
+	allineati. Stesso pattern applicato a refresh-owasp-db.yml, dove la
+	versione del CLI dependency-check viene letta dalla stessa proprieta'
+	(non piu' hardcoded 12.1.0) e l'URL di download e' stato aggiornato
+	al nuovo repository dependency-check/DependencyCheck.
+
 2026-05-25  Giuliano Pintori <pintori@link.it>
 
 	* [Release]
