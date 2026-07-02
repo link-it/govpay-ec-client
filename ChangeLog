@@ -1,3 +1,19 @@
+2026-07-02  Giuliano Pintori <pintori@link.it>
+
+	* [Release]
+	Avanzata la versione del progetto da 1.0.0 a 1.0.1 (branch 1.x.x,
+	maintenance release sulla linea Spring Boot 3.x).
+
+	* [Bugfix]
+	Corretto il tipo del campo NuovaRendicontazione.esito nello schema
+	OpenAPI (govpay-api-schemas.yaml): da 'number' a 'string', coerentemente
+	con i valori enum (ESEGUITO, REVOCATO, ESEGUITO_STANDIN,
+	ESEGUITO_STANDIN_SENZA_RPT, ESEGUITO_SENZA_RPT). In 1.0.0 il mismatch
+	causava la generazione di NuovaRendicontazione$EsitoEnum con costanti
+	'new BigDecimal("null")' e NumberFormatException in <clinit> al primo
+	accesso, rendendo inutilizzabile notificaRendicontazione lato client.
+	Backport dal branch main (commit 92a4cff).
+
 2026-05-04  Giuliano Pintori <pintori@link.it>
 
 	* [Release]

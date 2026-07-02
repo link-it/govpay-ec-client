@@ -12,12 +12,12 @@
     </parent>
 
     <artifactId>govpay-ec-client</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
 
     <name>GovPay EC Client</name>
     <description>Libreria client per GovPay API Notifica e Verifica</description>
-    <url>https://gov4j.org/maven/govpay/govpay-ec-client/1.0.0</url>
+    <url>https://gov4j.org/maven/govpay/govpay-ec-client/1.0.1</url>
 
     <scm>
         <connection>scm:git:https://github.com/link-it/govpay-ec-client.git</connection>
