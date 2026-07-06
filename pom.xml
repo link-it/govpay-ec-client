@@ -48,21 +48,6 @@
         <owasp.autoUpdate>true</owasp.autoUpdate>
     </properties>
 
-    <dependencyManagement>
-        <dependencies>
-            <!-- Override Netty: CVE-2026-42577..42587, CVE-2026-44248, CVE-2026-41417
-                 (gruppo di vulnerabilita' su netty-transport e moduli correlati);
-                 Spring Boot 4.0.6 importa Netty 4.2.12.Final, 4.2.14.Final include i fix. -->
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-bom</artifactId>
-                <version>4.2.14.Final</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>

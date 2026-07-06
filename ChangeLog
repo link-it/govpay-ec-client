@@ -1,3 +1,25 @@
+2026-07-06  Giuliano Pintori <pintori@link.it>
+
+	* [Security]
+	Rimosso l'override Netty 4.2.14.Final nel dependencyManagement.
+	Spring Boot 4.1.0 (via BOM 2.0.0) porta transitivamente Netty
+	4.2.15.Final, che risolve il gruppo di vulnerabilita' segnalate
+	dall'OSV Scanner sulla 4.2.14:
+	  - netty-codec-classes-quic: GHSA-cmm3-54f8-px4j, GHSA-cq4q-cv5g-r8q5
+	  - netty-codec-http:         GHSA-hvcg-qmg6-jm4c
+	  - netty-codec-http2:        GHSA-563q-j3cm-6jxm, GHSA-5x3r-wrvg-rp6q,
+	                              GHSA-c2gf-v879-257j
+	  - netty-codec-http3:        GHSA-4grm-h2qv-h6w6, GHSA-c2rx-5r8w-8xr2
+	  - netty-handler:            GHSA-3qp7-7mw8-wx86, GHSA-c653-97m9-rcg9,
+	                              GHSA-x4gw-5cx5-pgmh
+	  - netty-resolver-dns:       GHSA-5pvg-856g-cp85, GHSA-676x-f7gg-47vc,
+	                              GHSA-xmv7-r254-6q78
+	  - netty-transport-native-epoll: GHSA-w573-9ffj-6ff9
+	L'override 4.2.14.Final forzava un downgrade rispetto al 4.2.15
+	fornito dal BOM. La 2.0.0 non era ancora stata pubblicata su Maven
+	Central (pipeline fallita), quindi il fix rientra nella 2.0.0
+	senza bump di versione.
+
 2026-07-01  Giuliano Pintori <pintori@link.it>
 
 	* [Release]
