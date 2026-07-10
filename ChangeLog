@@ -1,5 +1,9 @@
 2026-07-10  Giuliano Pintori <pintori@link.it>
 
+	* [Release]
+	Avanzata la versione del progetto da 2.0.0 a 2.0.1
+	(maintenance release sulla linea 2.x).
+
 	* [Build]
 	Aggiornato il parent POM govpay-bom da 2.0.0 a 2.0.1.
 
