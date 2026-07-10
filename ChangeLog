@@ -1,3 +1,8 @@
+2026-07-10  Giuliano Pintori <pintori@link.it>
+
+	* [Build]
+	Aggiornato il parent POM govpay-bom da 2.0.0 a 2.0.1.
+
 2026-07-06  Giuliano Pintori <pintori@link.it>
 
 	* [Security]
