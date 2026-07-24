@@ -1,3 +1,14 @@
+2026-07-24  Giuliano Pintori <pintori@link.it>
+
+	* [Release]
+	Avanzata la versione del progetto da 2.0.1 a 2.0.2
+	(maintenance release sulla linea 2.x).
+
+	* [Build]
+	Aggiornato il parent POM govpay-bom da 2.0.1 a 2.0.3. Il nuovo BOM
+	porta Jackson 3.1.4 -> 3.2.1; Spring Boot 4.1.0, Spring Framework
+	7.0.8 e OWASP Dependency-Check 12.2.2 restano invariati.
+
 2026-07-10  Giuliano Pintori <pintori@link.it>
 
 	* [Release]
