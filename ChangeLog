@@ -1,3 +1,15 @@
+2026-07-26  Giuliano Pintori <pintori@link.it>
+
+	* [Build]
+	Aggiornato il parent POM govpay-bom da 2.0.3 a 2.0.4-SNAPSHOT.
+	Il nuovo BOM porta transitivamente Netty da 4.2.15.Final a
+	4.2.16.Final, risolvendo il gruppo di vulnerabilita' segnalate
+	dall'OSV Scanner sulla 4.2.15 (GHSA-558v-64gr-wgg4,
+	GHSA-4mp9-239f-g9hg, GHSA-6cqp-g7gg-8hr5, GHSA-6jqx-86gh-f27w,
+	GHSA-gcjf-9mgh-3p7g, GHSA-jppx-w49h-x2qq, GHSA-mvh2-crg5-v77c,
+	GHSA-q4f6-jm68-57ww, GHSA-c69g-56f8-xwqj, GHSA-hpcc-26xq-25fv),
+	senza necessita' di override locale del netty-bom.
+
 2026-07-24  Giuliano Pintori <pintori@link.it>
 
 	* [Release]
