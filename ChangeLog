@@ -1,3 +1,18 @@
+2026-10-02  Giuliano Pintori <pintori@link.it>
+
+	* [API]
+	Dichiarati nullable nello YAML dell'API Ente Creditore i campi
+	facoltativi che GovPay invia a null nella notifica di pagamento:
+	ProprietaPendenza.dataScandenzaAvviso, Pendenza.dataScadenza,
+	Pendenza.dataValidita e Pendenza.annoRiferimento. Non erano fra i
+	required ma nemmeno nullable, e in OpenAPI 3.0 il default di nullable
+	e' false: GovPay serializza la notifica scrivendo i campi non
+	valorizzati come null, e un client generato in un linguaggio con tipi
+	valore (DateTime in C#) ne rifiutava la deserializzazione.
+	Allineamento della correzione link-it/govpay#889. Il client Java
+	generato e' invariato, perche' con openApiNullable=false quei campi
+	erano gia' oggetti annotati @Nullable.
+
 2026-09-03  Giuliano Pintori <pintori@link.it>
 
 	* [Build]
