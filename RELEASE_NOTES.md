@@ -1,3 +1,13 @@
+# GovPay EC Client 2.0.3-SNAPSHOT
+
+- Aggiunto `GovPayEcApiClient`, estensione del client generato per i payload legacy
+  privi di `tipoRiferimento` nelle voci e nei documenti.
+- Supportati sia il template predefinito sia un `RestTemplate` fornito dal chiamante,
+  senza modificare i mapper condivisi. Per abilitare la compatibilita' occorre usare
+  questo client al posto di `ApiClient` (vedi README).
+- Test HTTP delle tre varianti di voce, del documento rateale e della serializzazione;
+  test di isolamento e conservazione della configurazione Jackson.
+
 # GovPay EC Client 2.0.2
 
 Maintenance release sulla linea 2.x (Spring Boot 4.x / Spring Framework 7.x). Allinea il parent POM alla nuova release del BOM. Per i cambiamenti maggiori (breaking changes, migrazione a Spring Boot 4 e Jackson 3, fix di sicurezza Netty) vedere le [note di rilascio della 2.0.0](https://github.com/link-it/govpay-ec-client/releases/tag/2.0.0).
