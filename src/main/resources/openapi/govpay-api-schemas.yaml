@@ -1571,11 +1571,16 @@ components:
       example: F
     TipoSogliaVincoloPagamento:
       description: >-
-        Indica se il pagamento deve avvenire entro o oltre la soglia di giorni indicata
+        Tipo di soglia del vincolo di pagamento: ENTRO e OLTRE indicano se il
+        pagamento deve avvenire entro o oltre la soglia di giorni indicata,
+        RIDOTTO e SCONTATO indicano il pagamento in soluzione unica con importo
+        ridotto o scontato e non prevedono giorni.
       type: string
       enum:
         - ENTRO
         - OLTRE
+        - RIDOTTO
+        - SCONTATO
       example: ENTRO    
     UnitaOperativa:
       type: object
@@ -1611,11 +1616,12 @@ components:
       type: object
       required:
         - tipo
-        - giorni
       properties:
         giorni:
           type: number
-          description: numero di giorni vincolo per il pagamento
+          description: >-
+            numero di giorni vincolo per il pagamento. Valorizzato solo per le
+            soglie ENTRO e OLTRE.
           example: 5
           minimum: 1
         tipo:
