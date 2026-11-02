@@ -1,3 +1,15 @@
+2026-11-02  Giuliano Pintori <pintori@link.it>
+
+	* [API]
+	Aggiunti i valori RIDOTTO e SCONTATO a TipoSogliaVincoloPagamento
+	(oltre a ENTRO e OLTRE) e reso facoltativo VincoloPagamento.giorni,
+	che le soglie RIDOTTO e SCONTATO non valorizzano. Allineamento al
+	contratto che il core GovPay invia gia' agli Enti nella notifica di
+	pagamento (TipoSogliaVincoloPagamento di client-api-ente), necessario
+	a govpay-notify-batch per inviare la soglia delle pendenze con
+	opzione SOLUZIONE_UNICA_RIDOTTO e SOLUZIONE_UNICA_SCONTATO
+	(link-it/govpay-notify-batch#30). Issue #7.
+
 2026-10-30  Giuliano Pintori <pintori@link.it>
 
 	* [API]
