@@ -35,7 +35,7 @@ Contenuto del jar:
 | `it.govpay.ec.client.api.impl` | `ApiClient` e infrastruttura di invocazione su `RestTemplate` (generati) |
 | `it.govpay.ec.client.api.impl.auth` | Classi di autenticazione del generatore (`HttpBasicAuth`, `HttpBearerAuth`, `ApiKeyAuth`): la specifica non dichiara schemi di sicurezza, quindi non sono registrate (vedi [Autenticazione](#autenticazione)) |
 | `it.govpay.ec.client.beans` | Modelli (DTO) generati dagli schemi: `PendenzaVerificata`, `NuovaPendenza`, `Ricevuta`, `NuovaRendicontazione`, ... |
-| `it.govpay.ec.client` | `GovPayEcApiClient`, estensione scritta a mano di `ApiClient` per i payload legacy (vedi [Compatibilità con i payload EC legacy](#compatibilità-con-i-payload-ec-legacy)); `Costanti` |
+| `it.govpay.ec.client` | `GovPayEcApiClient`, estensione scritta a mano di `ApiClient` per i payload legacy (vedi [Compatibilità con i payload EC legacy](#compatibilità-con-i-payload-ec-legacy)) |
 
 Operazioni esposte:
 
@@ -56,7 +56,7 @@ Ogni metodo ha anche la variante `...WithHttpInfo`, che restituisce la `Response
 | [govpay-bom](https://github.com/link-it/govpay-bom) | build | sì | Parent Maven: versioni delle dipendenze e dei plugin, compresi Spring Boot, Jackson e il generatore OpenAPI (`openapi.tool.codegen.version`) |
 | Gestionale dell'Ente Creditore | runtime | sì | Implementa le API Notifica e Verifica. Il client lo chiama all'URL impostato con `setBasePath(...)`; nei componenti GovPay è l'URL del connettore dell'applicazione |
 | [govpay-common](https://github.com/link-it/govpay-common) | runtime, nei progetti che usano il client | no | Non è una dipendenza di questa libreria. I progetti GovPay ne usano il `ConnettoreService`, che costruisce dal connettore su database il `RestTemplate` (autenticazione, TLS, timeout, correlation id, eventi GDE) e fornisce l'URL da passare al client |
-| Progetti che usano la libreria | build | - | Dipendenza diretta nel `pom.xml`: [govpay-notify-batch](https://github.com/link-it/govpay-notify-batch) (versione `2.0.1`: notifica delle ricevute e delle rendicontazioni con `ApiClient`), [govpay-pafornode-api](https://github.com/link-it/govpay-pafornode-api) (proprietà `govpay-ec-client.version`, oggi `2.0.3-SNAPSHOT`: verifica dell'avviso con `GovPayEcApiClient`) |
+| Progetti che usano la libreria | build | - | Dipendenza diretta nel `pom.xml`: [govpay-notify-batch](https://github.com/link-it/govpay-notify-batch) (versione `2.0.3-SNAPSHOT`: notifica delle ricevute e delle rendicontazioni con `ApiClient`), [govpay-pafornode-api](https://github.com/link-it/govpay-pafornode-api) (proprietà `govpay-ec-client.version`, oggi `2.0.3-SNAPSHOT`: verifica dell'avviso con `GovPayEcApiClient`) |
 
 Il core [govpay](https://github.com/link-it/govpay) chiama le stesse API con un proprio client e non usa questa libreria.
 
@@ -87,7 +87,7 @@ mvn clean test
 mvn test -Dtest=GovPayEcApiClientTest
 ```
 
-I test (11) verificano la creazione e la configurazione di `ApiClient`, la serializzazione dei modelli e, con `MockWebServer`, le chiamate HTTP di `GovPayEcApiClient` con i payload legacy.
+I test (15) verificano la creazione e la configurazione di `ApiClient`, la serializzazione dei modelli e, con `MockRestServiceServer`, le chiamate HTTP di `GovPayEcApiClient` con i payload legacy.
 
 ## Utilizzo
 
@@ -101,9 +101,9 @@ Coordinate Maven:
 </dependency>
 ```
 
-La versione non è gestita da govpay-bom: il progetto che usa la libreria la imposta da sé. La versione corrente di sviluppo è `2.0.3-SNAPSHOT` (pom su `main`); l'ultima pubblicata su Maven Central è `2.0.1`. Le versioni SNAPSHOT sono pubblicate su `https://central.sonatype.com/repository/maven-snapshots`. La linea `2.x` richiede Spring Boot 4 e Jackson 3; la linea `1.x` (ramo `1.x.x`) è per Spring Boot 3.
+La versione non è gestita da govpay-bom: il progetto che usa la libreria la imposta da sé. La versione corrente di sviluppo è `2.0.3-SNAPSHOT` (pom su `main`); l'ultima pubblicata su Maven Central è `2.0.1`: la `2.0.2` non viene pubblicata e la prossima release sarà la `2.0.3`. Le versioni SNAPSHOT sono pubblicate su `https://central.sonatype.com/repository/maven-snapshots`. La linea `2.x` richiede Spring Boot 4 e Jackson 3; la linea `1.x` (ramo `1.x.x`) è per Spring Boot 3.
 
-La libreria porta con sé `spring-boot-starter-webflux` e `spring-boot-starter-validation`; non ha auto-configurazioni né bean Spring: il client si costruisce nel codice.
+La libreria porta con sé solo `spring-web` (per `RestTemplate`), `jackson-databind` 3 e `jakarta.annotation-api`, con le versioni del BOM; non dipende da Spring Boot, non ha auto-configurazioni né bean Spring: il client si costruisce nel codice.
 
 Uso tipico in un componente GovPay, con il `RestTemplate` e l'URL presi dal connettore:
 
