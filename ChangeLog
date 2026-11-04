@@ -1,3 +1,22 @@
+2026-11-04  Giuliano Pintori <pintori@link.it>
+
+	* [Build] Dipendenze ridotte a quelle usate dal client.
+	spring-boot-starter-webflux sostituito da spring-web e jackson-databind:
+	il client generato usa RestTemplate, non WebClient, e ai progetti che
+	usano la libreria non arrivano piu' Reactor, Netty e gli starter di
+	Spring Boot. Tolti anche spring-boot-starter-validation e
+	swagger-annotations (client generato con useBeanValidation=false,
+	nessuna annotazione Swagger), le dipendenze opzionali lombok e
+	spring-boot-configuration-processor, le dipendenze di test reactor-test
+	e mockwebserver e il build-helper-maven-plugin, ridondante perche' il
+	generatore OpenAPI aggiunge gia' la cartella dei sorgenti generati.
+
+	* [API] Rimossa la classe Costanti: non era usata dalla libreria ne'
+	dai progetti che la usano, e VERSIONE non era allineata.
+
+	* [Release] La 2.0.2 non viene pubblicata su Maven Central: la
+	prossima release e' la 2.0.3.
+
 2026-11-02  Giuliano Pintori <pintori@link.it>
 
 	* [API]
